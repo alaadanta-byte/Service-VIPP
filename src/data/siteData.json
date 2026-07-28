@@ -1,0 +1,72 @@
+{
+  "siteSettings": {
+    "siteName": "Service VIP",
+    "siteLogo": "",
+    "siteDescAr": "منصتك الموثوقة للحصول على الاشتراكات الرقمية والخدمات VIP بأفضل الأسعار وأعلى جودة.",
+    "siteDescEn": "Your trusted platform for VIP digital subscriptions and premium services.",
+    "whatsapp": "+201000000000",
+    "telegram": "https://t.me/servicevip",
+    "instagram": "https://instagram.com/servicevip",
+    "facebook": "https://facebook.com/servicevip",
+    "email": "support@servicevip.com",
+    "currency": "ج.م",
+    "primaryColor": "#8b5cf6"
+  },
+  "services": [
+    {
+      "id": 1,
+      "image": "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=400&h=250&fit=crop",
+      "nameAr": "شات جي بي تي بلس (ChatGPT Plus)",
+      "nameEn": "ChatGPT Plus",
+      "descAr": "اشتراك ChatGPT Plus شغال 100% مع الوصول الكامل لموديلات GPT-4o وDALL-E 3 وأسرع أداء.",
+      "descEn": "ChatGPT Plus subscription with unlimited access to GPT-4o and DALL-E 3.",
+      "categoryId": 1,
+      "originalPrice": 500,
+      "price": 500,
+      "discount": 0,
+      "rating": 5.0,
+      "featured": true
+    },
+    {
+      "id": 2,
+      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=250&fit=crop",
+      "nameAr": "جميناي برو (Gemini Pro)",
+      "nameEn": "Gemini Pro",
+      "descAr": "اشتراك جميناي برو المتطور من جوجل مع أحدث نماذج الذكاء الاصطناعي وسعة تحليلية فائقة.",
+      "descEn": "Google Gemini Pro advanced subscription for professional AI tasks.",
+      "categoryId": 1,
+      "originalPrice": 450,
+      "price": 450,
+      "discount": 0,
+      "rating": 4.9,
+      "featured": true
+    },
+    {
+      "id": 3,
+      "image": "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&h=250&fit=crop",
+      "nameAr": "أدوبي كريتيف كلاود (Adobe)",
+      "nameEn": "Adobe Creative Cloud",
+      "descAr": "اشتراك أدوبي الشامل لجميع البرامج والتطبيقات (Photoshop, Premiere, Illustrator) بضمان كامل.",
+      "descEn": "Adobe Creative Cloud full suite access for all creative applications.",
+      "categoryId": 2,
+      "originalPrice": 550,
+      "price": 550,
+      "discount": 0,
+      "rating": 5.0,
+      "featured": true
+    }
+  ],
+  "offers": [
+    {
+      "id": 1,
+      "titleAr": "عرض خاص - حزمة الذكاء الاصطناعي",
+      "titleEn": "Special Offer - AI Bundle",
+      "descAr": "احصل على اشتراك ChatGPT Plus + Gemini Pro بخصم مميز",
+      "descEn": "Get ChatGPT Plus + Gemini Pro with special discount",
+      "discount": 15,
+      "badgeAr": "عرض لفترة محدودة",
+      "badgeEn": "Limited Time",
+      "image": "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=400&h=250&fit=crop"
+    }
+  ]
+}

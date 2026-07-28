@@ -1,19 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import initialSiteData from '../data/siteData.json';
+import { syncDataToGitHub } from '../services/githubSync';
 
 const BackendContext = createContext();
 
 const defaultSiteSettings = {
-  siteName: 'Service VIP',
-  siteLogo: '',
-  siteDescAr: 'منصتك الموثوقة للحصول على الاشتراكات الرقمية والخدمات VIP بأفضل الأسعار وأعلى جودة.',
-  siteDescEn: 'Your trusted platform for VIP digital subscriptions and premium services.',
-  whatsapp: '+201000000000',
-  telegram: 'https://t.me/servicevip',
-  instagram: 'https://instagram.com/servicevip',
-  facebook: 'https://facebook.com/servicevip',
-  email: 'support@servicevip.com',
-  currency: 'ج.م',
-  primaryColor: '#8b5cf6'
+  ...initialSiteData.siteSettings,
+  githubToken: '',
+  autoSyncGitHub: true
 };
 
 const defaultAdminCreds = {
@@ -22,70 +16,10 @@ const defaultAdminCreds = {
   name: 'مدير النظام الرئيسي'
 };
 
-// New Requested Products List
-const newDefaultServices = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=400&h=250&fit=crop',
-    nameAr: 'شات جي بي تي بلس (ChatGPT Plus)',
-    nameEn: 'ChatGPT Plus',
-    descAr: 'اشتراك ChatGPT Plus شغال 100% مع الوصول الكامل لموديلات GPT-4o وDALL-E 3 وأسرع أداء.',
-    descEn: 'ChatGPT Plus subscription with unlimited access to GPT-4o and DALL-E 3.',
-    categoryId: 1,
-    originalPrice: 500,
-    price: 500,
-    discount: 0,
-    rating: 5.0,
-    featured: true
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=250&fit=crop',
-    nameAr: 'جميناي برو (Gemini Pro)',
-    nameEn: 'Gemini Pro',
-    descAr: 'اشتراك جميناي برو المتطور من جوجل مع أحدث نماذج الذكاء الاصطناعي وسعة تحليلية فائقة.',
-    descEn: 'Google Gemini Pro advanced subscription for professional AI tasks.',
-    categoryId: 1,
-    originalPrice: 450,
-    price: 450,
-    discount: 0,
-    rating: 4.9,
-    featured: true
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&h=250&fit=crop',
-    nameAr: 'أدوبي كريتيف كلاود (Adobe)',
-    nameEn: 'Adobe Creative Cloud',
-    descAr: 'اشتراك أدوبي الشامل لجميع البرامج والتطبيقات (Photoshop, Premiere, Illustrator) بضمان كامل.',
-    descEn: 'Adobe Creative Cloud full suite access for all creative applications.',
-    categoryId: 2,
-    originalPrice: 550,
-    price: 550,
-    discount: 0,
-    rating: 5.0,
-    featured: true
-  }
-];
-
-const defaultOffers = [
-  {
-    id: 1,
-    titleAr: 'عرض خاص - حزمة الذكاء الاصطناعي',
-    titleEn: 'Special Offer - AI Bundle',
-    descAr: 'احصل على اشتراك ChatGPT Plus + Gemini Pro بخصم مميز',
-    descEn: 'Get ChatGPT Plus + Gemini Pro with special discount',
-    discount: 15,
-    badgeAr: 'عرض لفترة محدودة',
-    badgeEn: 'Limited Time',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=400&h=250&fit=crop'
-  }
-];
-
 export function BackendProvider({ children }) {
   const [siteSettings, setSiteSettings] = useState(() => {
     const local = localStorage.getItem('svip-site-settings');
-    return local ? { ...defaultSiteSettings, ...JSON.parse(local), currency: 'ج.م' } : defaultSiteSettings;
+    return local ? { ...defaultSiteSettings, ...JSON.parse(local) } : defaultSiteSettings;
   });
 
   const [adminCreds, setAdminCreds] = useState(() => {
@@ -93,14 +27,14 @@ export function BackendProvider({ children }) {
     return local ? JSON.parse(local) : defaultAdminCreds;
   });
 
-  // Reset & Use New Products List
   const [services, setServices] = useState(() => {
-    return newDefaultServices;
+    const local = localStorage.getItem('svip-services');
+    return local ? JSON.parse(local) : initialSiteData.services;
   });
 
   const [offers, setOffers] = useState(() => {
     const local = localStorage.getItem('svip-offers');
-    return local ? JSON.parse(local) : defaultOffers;
+    return local ? JSON.parse(local) : initialSiteData.offers;
   });
 
   const [complaints, setComplaints] = useState(() => {
@@ -116,6 +50,8 @@ export function BackendProvider({ children }) {
   const [lang, setLang] = useState(() => {
     return localStorage.getItem('svip-lang') || 'ar';
   });
+
+  const [syncStatus, setSyncStatus] = useState({ status: 'idle', message: '' });
 
   useEffect(() => {
     localStorage.setItem('svip-site-settings', JSON.stringify(siteSettings));
@@ -150,8 +86,39 @@ export function BackendProvider({ children }) {
     document.dir = lang === 'ar' ? 'rtl' : 'ltr';
   }, [lang]);
 
+  // GitHub Auto Sync Helper
+  const triggerGitHubSync = async (updatedSettings, updatedServices, updatedOffers) => {
+    const curSettings = updatedSettings || siteSettings;
+    const curServices = updatedServices || services;
+    const curOffers = updatedOffers || offers;
+
+    if (!curSettings.autoSyncGitHub || !curSettings.githubToken) return;
+
+    setSyncStatus({ status: 'syncing', message: '⚡ جاري رفع التغييرات تلقائياً إلى GitHub...' });
+
+    const payload = {
+      siteSettings: curSettings,
+      services: curServices,
+      offers: curOffers
+    };
+
+    const res = await syncDataToGitHub(payload, curSettings.githubToken);
+
+    if (res.success) {
+      setSyncStatus({ status: 'success', message: '✅ تم الرفع والتعديل على GitHub بنجاح! موقع Vercel يعيد البناء الآن 🚀' });
+    } else {
+      setSyncStatus({ status: 'error', message: `⚠️ ${res.message}` });
+    }
+
+    setTimeout(() => {
+      setSyncStatus({ status: 'idle', message: '' });
+    }, 5000);
+  };
+
   const updateSiteSettings = (newSettings) => {
-    setSiteSettings(prev => ({ ...prev, ...newSettings }));
+    const updated = { ...siteSettings, ...newSettings };
+    setSiteSettings(updated);
+    triggerGitHubSync(updated, services, offers);
   };
 
   const login = (username, password) => {
@@ -201,15 +168,21 @@ export function BackendProvider({ children }) {
       featured: true,
       ...serviceData
     };
-    setServices(prev => [newService, ...prev]);
+    const updated = [newService, ...services];
+    setServices(updated);
+    triggerGitHubSync(siteSettings, updated, offers);
   };
 
   const updateService = (id, serviceData) => {
-    setServices(prev => prev.map(s => s.id === id ? { ...s, ...serviceData } : s));
+    const updated = services.map(s => s.id === id ? { ...s, ...serviceData } : s);
+    setServices(updated);
+    triggerGitHubSync(siteSettings, updated, offers);
   };
 
   const deleteService = (id) => {
-    setServices(prev => prev.filter(s => s.id !== id));
+    const updated = services.filter(s => s.id !== id);
+    setServices(updated);
+    triggerGitHubSync(siteSettings, updated, offers);
   };
 
   const addOffer = (offerData) => {
@@ -217,11 +190,15 @@ export function BackendProvider({ children }) {
       id: Date.now(),
       ...offerData
     };
-    setOffers(prev => [newOffer, ...prev]);
+    const updated = [newOffer, ...offers];
+    setOffers(updated);
+    triggerGitHubSync(siteSettings, services, updated);
   };
 
   const deleteOffer = (id) => {
-    setOffers(prev => prev.filter(o => o.id !== id));
+    const updated = offers.filter(o => o.id !== id);
+    setOffers(updated);
+    triggerGitHubSync(siteSettings, services, updated);
   };
 
   return (
@@ -238,6 +215,8 @@ export function BackendProvider({ children }) {
       setLang,
       login,
       logout,
+      syncStatus,
+      triggerGitHubSync,
       addComplaint,
       updateComplaintStatus,
       deleteComplaint,
