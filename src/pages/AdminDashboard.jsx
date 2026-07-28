@@ -19,7 +19,6 @@ export default function AdminDashboard() {
     deleteOffer,
     deleteComplaint,
     syncStatus,
-    triggerGitHubSync,
     lang
   } = useBackend();
   const navigate = useNavigate();
@@ -238,7 +237,7 @@ export default function AdminDashboard() {
             color: activeTab === 'settings' ? 'var(--primary-light)' : 'var(--text-secondary)'
           }}
         >
-          ⚙️ الإعدادات والمزامنة
+          ⚙️ الإعدادات
         </button>
 
         <button
@@ -350,26 +349,13 @@ export default function AdminDashboard() {
                 <h3 style={{ fontSize: '2.2rem', fontWeight: 900, marginTop: '0.5rem', color: '#ffb703' }}>{complaints.length}</h3>
               </div>
             </div>
-
-            {/* Manual Sync Trigger Button */}
-            <div className="glass-panel" style={{ padding: '2rem', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary-light)' }}>🐙 حالة الربط والمزامنة التلقائية مع GitHub</h4>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.3rem' }}>
-                  المستودع المتصل: <strong>alaadanta-byte/Service-VIPP</strong> (أحدث التغييرات تترفع تلقائياً وبشكل فوري).
-                </p>
-              </div>
-              <button onClick={() => triggerGitHubSync()} className="btn btn-primary" style={{ padding: '0.8rem 1.6rem' }}>
-                ⚡ مزامنة فورية مع GitHub الآن
-              </button>
-            </div>
           </div>
         )}
 
         {/* 2. SETTINGS PAGE */}
         {activeTab === 'settings' && (
           <div style={{ maxWidth: '850px' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1.5rem' }}>⚙️ قسم الإعدادات والمزامنة</h2>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1.5rem' }}>⚙️ قسم الإعدادات</h2>
 
             {/* Sub-Tab Navigation Bar */}
             <div style={{
@@ -395,7 +381,7 @@ export default function AdminDashboard() {
                   transition: 'all 0.3s ease'
                 }}
               >
-                🌐 إعدادات الموقع والصور والربط
+                🌐 إعدادات الموقع والصور
               </button>
 
               <button
@@ -416,47 +402,17 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            {/* SUB-TAB 1: SITE SETTINGS & GITHUB SYNC TOKEN */}
+            {/* SUB-TAB 1: SITE SETTINGS */}
             {settingsSubTab === 'site' && (
               <div>
                 {savedSettingsMsg && (
                   <div style={{ background: 'rgba(78, 223, 143, 0.15)', border: '1px solid rgba(78, 223, 143, 0.4)', color: '#4edf8f', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', fontWeight: 700 }}>
-                    ✅ تم حفظ وتحديث الإعدادات والمزامنة التلقائية مع GitHub!
+                    ✅ تم حفظ وحماية إعدادات الموقع وتطبيقها على جميع الصفحات!
                   </div>
                 )}
 
                 <form onSubmit={handleSaveSettings} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
                   
-                  {/* GitHub Token Config */}
-                  <div style={{ padding: '1.5rem', borderRadius: '14px', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid var(--border-glass)', marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-light)' }}>🐙 ربط التعديلات التلقائي بـ GitHub</h4>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>
-                        <input
-                          type="checkbox"
-                          checked={settingsForm.autoSyncGitHub}
-                          onChange={(e) => setSettingsForm({ ...settingsForm, autoSyncGitHub: e.target.checked })}
-                          style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                        />
-                        تفعيل الرفع التلقائي لـ GitHub
-                      </label>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>رمز الوصول GitHub Access Token</label>
-                      <input
-                        type="password"
-                        placeholder="ghp_..."
-                        value={settingsForm.githubToken}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, githubToken: e.target.value })}
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
-                      />
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                        مربوط بمستودع: <strong>https://github.com/alaadanta-byte/Service-VIPP</strong>
-                      </p>
-                    </div>
-                  </div>
-
                   {/* Site Name & Logo Image */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                     <div>
@@ -570,7 +526,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem 2.2rem', fontSize: '1rem' }}>
-                    💾 حفظ الحقول والرفع المباشر لـ GitHub
+                    💾 حفظ كافة الإعدادات والروابط
                   </button>
                 </form>
               </div>
