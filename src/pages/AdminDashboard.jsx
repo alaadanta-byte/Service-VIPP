@@ -38,14 +38,32 @@ export default function AdminDashboard() {
   const [editingServiceId, setEditingServiceId] = useState(null);
   const [serviceForm, setServiceForm] = useState({ nameAr: '', nameEn: '', price: '', originalPrice: '', descAr: '', image: '' });
 
-  // Offer Modal State
+  // Offer Modal State with Product Selection
   const [showOfferModal, setShowOfferModal] = useState(false);
-  const [offerForm, setOfferForm] = useState({ titleAr: '', titleEn: '', descAr: '', discount: '', badgeAr: 'عرض خاص' });
+  const [selectedServiceId, setSelectedServiceId] = useState('');
+  const [offerForm, setOfferForm] = useState({ titleAr: '', titleEn: '', descAr: '', discount: '20', badgeAr: 'عرض خاص' });
 
   if (!currentUser) {
     navigate('/login');
     return null;
   }
+
+  // Handle Product Selection in Offer Modal
+  const handleProductSelect = (serviceId) => {
+    setSelectedServiceId(serviceId);
+    if (!serviceId) return;
+
+    const foundService = services.find(s => s.id === parseInt(serviceId));
+    if (foundService) {
+      setOfferForm(prev => ({
+        ...prev,
+        titleAr: `عرض خاص - ${foundService.nameAr}`,
+        titleEn: `Special Offer - ${foundService.nameEn || foundService.nameAr}`,
+        descAr: foundService.descAr,
+        discount: foundService.discount || '20'
+      }));
+    }
+  };
 
   // Save Settings
   const handleSaveSettings = (e) => {
@@ -124,6 +142,8 @@ export default function AdminDashboard() {
   // Offer Form Handlers
   const handleOfferSubmit = (e) => {
     e.preventDefault();
+    const selectedService = services.find(s => s.id === parseInt(selectedServiceId));
+
     addOffer({
       titleAr: offerForm.titleAr,
       titleEn: offerForm.titleAr,
@@ -131,9 +151,13 @@ export default function AdminDashboard() {
       descEn: offerForm.descAr,
       discount: parseInt(offerForm.discount) || 10,
       badgeAr: offerForm.badgeAr || 'عرض خاص',
-      badgeEn: 'Special Offer'
+      badgeEn: 'Special Offer',
+      serviceId: selectedService ? selectedService.id : null,
+      image: selectedService ? selectedService.image : null
     });
-    setOfferForm({ titleAr: '', titleEn: '', descAr: '', discount: '', badgeAr: 'عرض خاص' });
+
+    setOfferForm({ titleAr: '', titleEn: '', descAr: '', discount: '20', badgeAr: 'عرض خاص' });
+    setSelectedServiceId('');
     setShowOfferModal(false);
   };
 
@@ -284,7 +308,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* 2. SETTINGS PAGE (CONTAINS SUB-TABS FOR SITE SETTINGS AND SECURITY SETTINGS) */}
+        {/* 2. SETTINGS PAGE */}
         {activeTab === 'settings' && (
           <div style={{ maxWidth: '850px' }}>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1.5rem' }}>⚙️ قسم الإعدادات</h2>
@@ -697,13 +721,41 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Add Offer Modal */}
+      {/* Add Offer Modal with Product Selector */}
       {showOfferModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '450px', padding: '2rem', borderRadius: '20px' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '480px', padding: '2rem', borderRadius: '20px' }}>
             <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.5rem' }}>إضافة عرض خصم جديد</h3>
 
             <form onSubmit={handleOfferSubmit}>
+              
+              {/* Product Selector Dropdown */}
+              <div style={{ marginBottom: '1.2rem' }}>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--primary-light)', fontWeight: 700 }}>
+                  📦 اختيار منتج لتطبيق العرض عليه (اختياري)
+                </label>
+                <select
+                  value={selectedServiceId}
+                  onChange={(e) => handleProductSelect(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.85rem',
+                    borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.08)',
+                    color: '#fff',
+                    border: '1px solid var(--border-glass)',
+                    fontSize: '0.95rem'
+                  }}
+                >
+                  <option value="" style={{ background: '#111', color: '#fff' }}>-- اختر منتج من القائمة (أو اكتب يدوي) --</option>
+                  {services.map(service => (
+                    <option key={service.id} value={service.id} style={{ background: '#111', color: '#fff' }}>
+                      {service.nameAr} - (خصم ساري: {service.discount}% | سعر: ${service.price})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>عنوان العرض</label>
                 <input

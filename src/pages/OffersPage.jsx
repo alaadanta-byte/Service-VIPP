@@ -27,6 +27,12 @@ export default function OffersPage() {
               position: 'relative',
               overflow: 'hidden'
             }}>
+              {offer.image && (
+                <div style={{ marginBottom: '1.2rem', overflow: 'hidden', borderRadius: '12px' }}>
+                  <img src={offer.image} alt={offer.titleAr} style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
+                </div>
+              )}
+
               <div>
                 <span className="badge badge-discount" style={{ marginBottom: '1rem', display: 'inline-block' }}>
                   {lang === 'ar' ? offer.badgeAr : offer.badgeEn}
