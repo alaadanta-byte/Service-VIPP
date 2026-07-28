@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useBackend } from '../context/BackendContext';
 
 export default function Home() {
-  const { services, offers, lang } = useBackend();
-  const featuredServices = services.filter(s => s.featured).slice(0, 4);
+  const { services, siteSettings, lang } = useBackend();
+  const featuredServices = services.slice(0, 4);
 
   return (
     <div>
@@ -46,7 +46,7 @@ export default function Home() {
                 background: 'var(--primary-gradient)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
-              }}>بأقل السعار وأعلى أمان</span></>
+              }}>بأقل الأسعار وأعلى أمان</span></>
             ) : (
               <>Enjoy Premium Subscriptions <br/><span style={{
                 background: 'var(--primary-gradient)',
@@ -99,13 +99,11 @@ export default function Home() {
                 <div className="product-card-body">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <h3 className="product-card-title">{lang === 'ar' ? service.nameAr : service.nameEn}</h3>
-                    <span className="badge badge-discount">-{service.discount}%</span>
                   </div>
                   <p className="product-card-desc">{lang === 'ar' ? service.descAr : service.descEn}</p>
                   <div className="product-card-footer">
                     <div className="price-tag">
-                      <span className="price-original">${service.originalPrice}</span>
-                      <span className="price-current">${service.price}</span>
+                      <span className="price-current">{siteSettings.currency}{service.price}</span>
                     </div>
                     <button className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
                       {lang === 'ar' ? 'طلب الخدمة' : 'Order Now'}

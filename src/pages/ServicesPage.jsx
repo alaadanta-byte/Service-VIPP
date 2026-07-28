@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useBackend } from '../context/BackendContext';
 
 export default function ServicesPage() {
-  const { services, lang } = useBackend();
+  const { services, siteSettings, lang } = useBackend();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredServices = services.filter(service => {
@@ -49,13 +49,11 @@ export default function ServicesPage() {
               <div className="product-card-body">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <h3 className="product-card-title">{lang === 'ar' ? service.nameAr : service.nameEn}</h3>
-                  <span className="badge badge-discount">-{service.discount}%</span>
                 </div>
                 <p className="product-card-desc">{lang === 'ar' ? service.descAr : service.descEn}</p>
                 <div className="product-card-footer">
                   <div className="price-tag">
-                    <span className="price-original">${service.originalPrice}</span>
-                    <span className="price-current">${service.price}</span>
+                    <span className="price-current">{siteSettings.currency}{service.price}</span>
                   </div>
                   <button className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
                     {lang === 'ar' ? 'طلب الآن' : 'Order Now'}

@@ -33,12 +33,12 @@ export default function AdminDashboard() {
   const [passwordForm, setPasswordForm] = useState({ currentPass: '', newPass: '', confirmPass: '' });
   const [passwordFeedback, setPasswordFeedback] = useState({ type: '', msg: '' });
 
-  // Service Modal State
+  // Service Modal State (Single Basic Price & Direct File Upload)
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState(null);
-  const [serviceForm, setServiceForm] = useState({ nameAr: '', nameEn: '', price: '', originalPrice: '', descAr: '', image: '' });
+  const [serviceForm, setServiceForm] = useState({ nameAr: '', nameEn: '', price: '', descAr: '', image: '' });
 
-  // Offer Modal State with Product Selection
+  // Offer Modal State
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState('');
   const [offerForm, setOfferForm] = useState({ titleAr: '', titleEn: '', descAr: '', discount: '20', badgeAr: 'عرض خاص' });
@@ -47,6 +47,30 @@ export default function AdminDashboard() {
     navigate('/login');
     return null;
   }
+
+  // Handle Image Upload from Local Computer
+  const handleImageFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setServiceForm(prev => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle Logo Upload from Local Computer
+  const handleLogoFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSettingsForm(prev => ({ ...prev, siteLogo: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Handle Product Selection in Offer Modal
   const handleProductSelect = (serviceId) => {
@@ -97,12 +121,10 @@ export default function AdminDashboard() {
     }
   };
 
-  // Service Form Handlers
+  // Service Form Handlers (Only Single Basic Price)
   const handleServiceSubmit = (e) => {
     e.preventDefault();
     const priceNum = parseFloat(serviceForm.price) || 0;
-    const origPriceNum = parseFloat(serviceForm.originalPrice) || priceNum;
-    const discountCalc = origPriceNum > 0 ? Math.round(((origPriceNum - priceNum) / origPriceNum) * 100) : 0;
 
     const dataPayload = {
       nameAr: serviceForm.nameAr,
@@ -110,8 +132,8 @@ export default function AdminDashboard() {
       descAr: serviceForm.descAr,
       descEn: serviceForm.descAr,
       price: priceNum,
-      originalPrice: origPriceNum,
-      discount: discountCalc > 0 ? discountCalc : 0,
+      originalPrice: priceNum,
+      discount: 0,
       image: serviceForm.image || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop'
     };
 
@@ -121,7 +143,7 @@ export default function AdminDashboard() {
       addService(dataPayload);
     }
 
-    setServiceForm({ nameAr: '', nameEn: '', price: '', originalPrice: '', descAr: '', image: '' });
+    setServiceForm({ nameAr: '', nameEn: '', price: '', descAr: '', image: '' });
     setEditingServiceId(null);
     setShowServiceModal(false);
   };
@@ -132,7 +154,6 @@ export default function AdminDashboard() {
       nameAr: service.nameAr,
       nameEn: service.nameEn || service.nameAr,
       price: service.price,
-      originalPrice: service.originalPrice,
       descAr: service.descAr,
       image: service.image
     });
@@ -369,7 +390,7 @@ export default function AdminDashboard() {
 
                 <form onSubmit={handleSaveSettings} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
                   
-                  {/* Site Name & Logo URL */}
+                  {/* Site Name & Logo Image */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>اسم الموقع (Site Name)</label>
@@ -381,14 +402,22 @@ export default function AdminDashboard() {
                         style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
                       />
                     </div>
+
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>رابط صورة اللوجو (Logo Image URL)</label>
+                      <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>📁 رفع صورة اللوجو من الجهاز</label>
                       <input
-                        type="text"
-                        placeholder="https://example.com/logo.png"
-                        value={settingsForm.siteLogo}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, siteLogo: e.target.value })}
-                        style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoFileUpload}
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem',
+                          borderRadius: '10px',
+                          background: 'rgba(139, 92, 246, 0.1)',
+                          color: '#fff',
+                          border: '1px dashed var(--primary-light)',
+                          cursor: 'pointer'
+                        }}
                       />
                     </div>
                   </div>
@@ -546,7 +575,7 @@ export default function AdminDashboard() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>إدارة المنتجات والخدمات</h2>
-              <button onClick={() => { setEditingServiceId(null); setServiceForm({ nameAr: '', nameEn: '', price: '', originalPrice: '', descAr: '', image: '' }); setShowServiceModal(true); }} className="btn btn-primary">
+              <button onClick={() => { setEditingServiceId(null); setServiceForm({ nameAr: '', nameEn: '', price: '', descAr: '', image: '' }); setShowServiceModal(true); }} className="btn btn-primary">
                 ➕ إضافة منتج جديد
               </button>
             </div>
@@ -564,8 +593,8 @@ export default function AdminDashboard() {
                     <img src={service.image} alt={service.nameAr} style={{ width: '70px', height: '70px', borderRadius: '12px', objectFit: 'cover' }} />
                     <div>
                       <h4 style={{ fontSize: '1.15rem', fontWeight: 700 }}>{service.nameAr}</h4>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                        السعر بعد الخصم: {siteSettings.currency}{service.price} | السعر الأصلي: {siteSettings.currency}{service.originalPrice} | الخصم: {service.discount}%
+                      <p style={{ fontSize: '0.9rem', color: 'var(--primary-light)', marginTop: '0.2rem', fontWeight: 700 }}>
+                        السعر الأساسي: {siteSettings.currency}{service.price}
                       </p>
                     </div>
                   </div>
@@ -646,7 +675,7 @@ export default function AdminDashboard() {
 
       </main>
 
-      {/* Add / Edit Service Modal */}
+      {/* Add / Edit Service Modal (Single Basic Price & Direct Local Image Upload) */}
       {showServiceModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', padding: '2rem', borderRadius: '20px' }}>
@@ -666,28 +695,19 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>السعر بعد الخصم</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={serviceForm.price}
-                    onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>السعر الأصلي</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={serviceForm.originalPrice}
-                    onChange={(e) => setServiceForm({ ...serviceForm, originalPrice: e.target.value })}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
-                </div>
+              {/* Single Basic Price Only */}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--primary-light)', fontWeight: 700 }}>
+                  💰 السعر الأساسي ({siteSettings.currency})
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  required
+                  value={serviceForm.price}
+                  onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                />
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
@@ -701,27 +721,54 @@ export default function AdminDashboard() {
                 ></textarea>
               </div>
 
+              {/* Direct File Upload & URL Option */}
               <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>رابط صورة المنتج (URL)</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--primary-light)', fontWeight: 700 }}>
+                  📁 رفع صورة المنتج من الكمبيوتر
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileUpload}
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem',
+                    borderRadius: '8px',
+                    background: 'rgba(139, 92, 246, 0.1)',
+                    color: '#fff',
+                    border: '1px dashed var(--primary-light)',
+                    cursor: 'pointer',
+                    marginBottom: '0.8rem'
+                  }}
+                />
+
+                <label style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.3rem', color: 'var(--text-muted)' }}>أو ضع رابط الصورة (URL):</label>
                 <input
                   type="text"
                   placeholder="https://..."
                   value={serviceForm.image}
                   onChange={(e) => setServiceForm({ ...serviceForm, image: e.target.value })}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                  style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', color: '#fff', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}
                 />
+
+                {serviceForm.image && (
+                  <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>معاينة الصورة:</span>
+                    <img src={serviceForm.image} alt="Preview" style={{ width: '45px', height: '45px', borderRadius: '8px', objectFit: 'cover' }} />
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
                 <button type="button" onClick={() => setShowServiceModal(false)} className="btn btn-secondary">إلغاء</button>
-                <button type="submit" className="btn btn-primary">{editingServiceId ? 'حفظ التعديلات' : 'إضافة الآن'}</button>
+                <button type="submit" className="btn btn-primary">{editingServiceId ? 'حفظ التعديلات' : 'إضافة المنتج'}</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Add Offer Modal with Product Selector */}
+      {/* Add Offer Modal */}
       {showOfferModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="glass-panel" style={{ width: '100%', maxWidth: '480px', padding: '2rem', borderRadius: '20px' }}>
@@ -729,7 +776,6 @@ export default function AdminDashboard() {
 
             <form onSubmit={handleOfferSubmit}>
               
-              {/* Product Selector Dropdown */}
               <div style={{ marginBottom: '1.2rem' }}>
                 <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--primary-light)', fontWeight: 700 }}>
                   📦 اختيار منتج لتطبيق العرض عليه (اختياري)
@@ -750,7 +796,7 @@ export default function AdminDashboard() {
                   <option value="" style={{ background: '#111', color: '#fff' }}>-- اختر منتج من القائمة (أو اكتب يدوي) --</option>
                   {services.map(service => (
                     <option key={service.id} value={service.id} style={{ background: '#111', color: '#fff' }}>
-                      {service.nameAr} - (خصم ساري: {service.discount}% | سعر: ${service.price})
+                      {service.nameAr} - (سعر: {siteSettings.currency}{service.price})
                     </option>
                   ))}
                 </select>
