@@ -44,14 +44,38 @@ export function BackendProvider({ children }) {
     return local ? JSON.parse(local) : defaultAdminCreds;
   });
 
+  // Services State - Force reset if user wants all products cleared
   const [services, setServices] = useState(() => {
     const local = localStorage.getItem('svip-services');
-    return local ? JSON.parse(local) : initialSiteData.services;
+    if (!local) return [];
+    try {
+      const parsed = JSON.parse(local);
+      // Check if it contains old default sample items
+      const isOldSample = parsed.some(s => s.nameAr && (s.nameAr.includes('نتفليكس') || s.nameAr.includes('سبوتيفاي')));
+      if (isOldSample) {
+        localStorage.removeItem('svip-services');
+        return [];
+      }
+      return parsed;
+    } catch (e) {
+      return [];
+    }
   });
 
   const [offers, setOffers] = useState(() => {
     const local = localStorage.getItem('svip-offers');
-    return local ? JSON.parse(local) : initialSiteData.offers;
+    if (!local) return [];
+    try {
+      const parsed = JSON.parse(local);
+      const isOldSample = parsed.some(o => o.titleAr && o.titleAr.includes('حزمة الترفيه'));
+      if (isOldSample) {
+        localStorage.removeItem('svip-offers');
+        return [];
+      }
+      return parsed;
+    } catch (e) {
+      return [];
+    }
   });
 
   const [complaints, setComplaints] = useState(() => {
