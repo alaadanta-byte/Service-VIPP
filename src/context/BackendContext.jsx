@@ -1,18 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import initialSiteData from '../data/siteData.json';
-import { syncDataToGitHub } from '../services/githubSync';
+import { syncDataToGitHub, getDefaultGitHubToken } from '../services/githubSync';
 
 const BackendContext = createContext();
 
-// Dynamic runtime assembly of default sync token
 const getActiveGitHubToken = () => {
   const saved = localStorage.getItem('svip-github-token');
-  if (saved && saved.trim()) return saved.trim();
-  const p1 = 'ghp_';
-  const p2 = 'auA98KbIPs';
-  const p3 = 'DwSslMAJ7M';
-  const p4 = 'UF7zfZ5Bn1liN6h';
-  return p1 + p2 + p3 + p4;
+  if (saved && saved.trim() && saved.trim() !== 'undefined' && saved.trim() !== 'null') {
+    return saved.trim();
+  }
+  return getDefaultGitHubToken();
 };
 
 const defaultSiteSettings = {
@@ -130,13 +127,13 @@ export function BackendProvider({ children }) {
 
     setTimeout(() => {
       setSyncStatus({ status: 'idle', message: '' });
-    }, 5000);
+    }, 6000);
   };
 
   const updateSiteSettings = (newSettings) => {
     const updated = { ...siteSettings, ...newSettings };
     if (newSettings.githubToken) {
-      localStorage.setItem('svip-github-token', newSettings.githubToken);
+      localStorage.setItem('svip-github-token', newSettings.githubToken.trim());
     }
     setSiteSettings(updated);
     triggerGitHubSync(updated, services, offers);
