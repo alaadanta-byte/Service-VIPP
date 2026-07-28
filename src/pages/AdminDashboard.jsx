@@ -22,7 +22,7 @@ export default function AdminDashboard() {
   } = useBackend();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'settings' | 'security' | 'services' | 'offers' | 'complaints'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'settings' | 'services' | 'offers' | 'complaints'
   
   // Site Settings Form State
   const [settingsForm, setSettingsForm] = useState(siteSettings);
@@ -190,22 +190,7 @@ export default function AdminDashboard() {
             color: activeTab === 'settings' ? 'var(--primary-light)' : 'var(--text-secondary)'
           }}
         >
-          🌐 إعدادات وصورة الموقع
-        </button>
-
-        <button
-          onClick={() => setActiveTab('security')}
-          style={{
-            padding: '0.85rem 1.2rem',
-            borderRadius: '12px',
-            textAlign: 'right',
-            fontWeight: 700,
-            fontSize: '0.95rem',
-            background: activeTab === 'security' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
-            color: activeTab === 'security' ? 'var(--primary-light)' : 'var(--text-secondary)'
-          }}
-        >
-          🔑 تغيير كلمة المرور
+          🌐 إعدادات وصور الموقع وكلمة المرور
         </button>
 
         <button
@@ -298,187 +283,192 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* SITE SETTINGS */}
+        {/* SITE SETTINGS (INCLUDING PASSWORD CHANGE INSIDE) */}
         {activeTab === 'settings' && (
-          <div style={{ maxWidth: '850px' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>إعدادات وصورة ومحتوى الموقع</h2>
+          <div style={{ maxWidth: '850px', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            
+            {/* Section 1: General Site Settings */}
+            <div>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1.5rem' }}>🌐 إعدادات وصورة ومحتوى الموقع</h2>
 
-            {savedSettingsMsg && (
-              <div style={{ background: 'rgba(78, 223, 143, 0.15)', border: '1px solid rgba(78, 223, 143, 0.4)', color: '#4edf8f', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', fontWeight: 700 }}>
-                ✅ تم حفظ صورة وإعدادات الموقع فورياً وتطبيقها على جميع الصفحات!
-              </div>
-            )}
-
-            <form onSubmit={handleSaveSettings} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
-              
-              {/* Site Name & Logo URL */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>اسم الموقع (Site Name)</label>
-                  <input
-                    type="text"
-                    required
-                    value={settingsForm.siteName}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, siteName: e.target.value })}
-                    style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>رابط صورة اللوجو (Logo Image URL)</label>
-                  <input
-                    type="text"
-                    placeholder="https://example.com/logo.png"
-                    value={settingsForm.siteLogo}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, siteLogo: e.target.value })}
-                    style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Logo Preview */}
-              {settingsForm.siteLogo && (
-                <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>معاينة الشعار:</span>
-                  <img src={settingsForm.siteLogo} alt="Logo Preview" style={{ height: '40px', borderRadius: '8px', objectFit: 'contain' }} />
+              {savedSettingsMsg && (
+                <div style={{ background: 'rgba(78, 223, 143, 0.15)', border: '1px solid rgba(78, 223, 143, 0.4)', color: '#4edf8f', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', fontWeight: 700 }}>
+                  ✅ تم حفظ صورة وإعدادات الموقع فورياً وتطبيقها على جميع الصفحات!
                 </div>
               )}
 
-              {/* Contact Info (WhatsApp & Email) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>💬 رقم الواتساب (WhatsApp)</label>
-                  <input
-                    type="text"
+              <form onSubmit={handleSaveSettings} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
+                
+                {/* Site Name & Logo URL */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>اسم الموقع (Site Name)</label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.siteName}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, siteName: e.target.value })}
+                      style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>رابط صورة اللوجو (Logo Image URL)</label>
+                    <input
+                      type="text"
+                      placeholder="https://example.com/logo.png"
+                      value={settingsForm.siteLogo}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, siteLogo: e.target.value })}
+                      style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Logo Preview */}
+                {settingsForm.siteLogo && (
+                  <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>معاينة الشعار:</span>
+                    <img src={settingsForm.siteLogo} alt="Logo Preview" style={{ height: '40px', borderRadius: '8px', objectFit: 'contain' }} />
+                  </div>
+                )}
+
+                {/* Contact Info (WhatsApp & Email) */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>💬 رقم الواتساب (WhatsApp)</label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.whatsapp}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
+                      style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>📧 البريد الإلكتروني للدعم</label>
+                    <input
+                      type="email"
+                      required
+                      value={settingsForm.email}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                      style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Social Media Links */}
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '1.5rem 0 1rem 0', color: 'var(--primary-light)' }}>🔗 روابط وسائل التواصل الاجتماعي</h4>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.2rem', marginBottom: '1.5rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>تليجرام (Telegram)</label>
+                    <input
+                      type="text"
+                      placeholder="https://t.me/..."
+                      value={settingsForm.telegram}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, telegram: e.target.value })}
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>انستجرام (Instagram)</label>
+                    <input
+                      type="text"
+                      placeholder="https://instagram.com/..."
+                      value={settingsForm.instagram}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>فيسبوك (Facebook)</label>
+                    <input
+                      type="text"
+                      placeholder="https://facebook.com/..."
+                      value={settingsForm.facebook}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, facebook: e.target.value })}
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Site Description */}
+                <div style={{ marginBottom: '1.8rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>وصف الموقع (بالعربية)</label>
+                  <textarea
+                    rows="3"
                     required
-                    value={settingsForm.whatsapp}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
+                    value={settingsForm.siteDescAr}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, siteDescAr: e.target.value })}
                     style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
+                  ></textarea>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>📧 البريد الإلكتروني للدعم</label>
-                  <input
-                    type="email"
-                    required
-                    value={settingsForm.email}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                    style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
+
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem 2.2rem', fontSize: '1rem' }}>
+                  💾 حفظ كافة الإعدادات والروابط
+                </button>
+              </form>
+            </div>
+
+            {/* Section 2: Change Password Inside Settings */}
+            <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '2.5rem' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.2rem', color: 'var(--primary-light)' }}>🔑 تغيير كلمة مرور حساب الأدمن</h3>
+
+              {passwordFeedback.msg && (
+                <div style={{
+                  background: passwordFeedback.type === 'success' ? 'rgba(78, 223, 143, 0.15)' : 'rgba(233, 69, 96, 0.15)',
+                  border: passwordFeedback.type === 'success' ? '1px solid rgba(78, 223, 143, 0.4)' : '1px solid rgba(233, 69, 96, 0.4)',
+                  color: passwordFeedback.type === 'success' ? '#4edf8f' : 'var(--accent-light)',
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  marginBottom: '1.5rem',
+                  fontWeight: 700
+                }}>
+                  {passwordFeedback.type === 'success' ? '✅ ' : '⚠️ '} {passwordFeedback.msg}
                 </div>
-              </div>
+              )}
 
-              {/* Social Media Links */}
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '1.5rem 0 1rem 0', color: 'var(--primary-light)' }}>🔗 روابط وسائل التواصل الاجتماعي</h4>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.2rem', marginBottom: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>تليجرام (Telegram)</label>
-                  <input
-                    type="text"
-                    placeholder="https://t.me/..."
-                    value={settingsForm.telegram}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, telegram: e.target.value })}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
+              <form onSubmit={handleChangePassword} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.2rem', marginBottom: '1.8rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>كلمة المرور الحالية</label>
+                    <input
+                      type="password"
+                      required
+                      value={passwordForm.currentPass}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPass: e.target.value })}
+                      style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>كلمة المرور الجديدة</label>
+                    <input
+                      type="password"
+                      required
+                      value={passwordForm.newPass}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPass: e.target.value })}
+                      style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>تأكيد كلمة المرور الجديدة</label>
+                    <input
+                      type="password"
+                      required
+                      value={passwordForm.confirmPass}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPass: e.target.value })}
+                      style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>انستجرام (Instagram)</label>
-                  <input
-                    type="text"
-                    placeholder="https://instagram.com/..."
-                    value={settingsForm.instagram}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>فيسبوك (Facebook)</label>
-                  <input
-                    type="text"
-                    placeholder="https://facebook.com/..."
-                    value={settingsForm.facebook}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, facebook: e.target.value })}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                  />
-                </div>
-              </div>
 
-              {/* Site Description */}
-              <div style={{ marginBottom: '1.8rem' }}>
-                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>وصف الموقع (بالعربية)</label>
-                <textarea
-                  rows="3"
-                  required
-                  value={settingsForm.siteDescAr}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, siteDescAr: e.target.value })}
-                  style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                ></textarea>
-              </div>
+                <button type="submit" className="btn btn-secondary" style={{ padding: '0.85rem 1.8rem', fontSize: '0.95rem' }}>
+                  🔐 تحديث كلمة المرور الآن
+                </button>
+              </form>
+            </div>
 
-              <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem 2.2rem', fontSize: '1rem' }}>
-                💾 حفظ كافة الإعدادات والروابط
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* SECURITY / CHANGE PASSWORD */}
-        {activeTab === 'security' && (
-          <div style={{ maxWidth: '550px' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>🔑 تغيير كلمة مرور الأدمن</h2>
-
-            {passwordFeedback.msg && (
-              <div style={{
-                background: passwordFeedback.type === 'success' ? 'rgba(78, 223, 143, 0.15)' : 'rgba(233, 69, 96, 0.15)',
-                border: passwordFeedback.type === 'success' ? '1px solid rgba(78, 223, 143, 0.4)' : '1px solid rgba(233, 69, 96, 0.4)',
-                color: passwordFeedback.type === 'success' ? '#4edf8f' : 'var(--accent-light)',
-                padding: '1rem',
-                borderRadius: '12px',
-                marginBottom: '1.5rem',
-                fontWeight: 700
-              }}>
-                {passwordFeedback.type === 'success' ? '✅ ' : '⚠️ '} {passwordFeedback.msg}
-              </div>
-            )}
-
-            <form onSubmit={handleChangePassword} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
-              <div style={{ marginBottom: '1.2rem' }}>
-                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>كلمة المرور الحالية</label>
-                <input
-                  type="password"
-                  required
-                  value={passwordForm.currentPass}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPass: e.target.value })}
-                  style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1.2rem' }}>
-                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>كلمة المرور الجديدة</label>
-                <input
-                  type="password"
-                  required
-                  value={passwordForm.newPass}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, newPass: e.target.value })}
-                  style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1.8rem' }}>
-                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>تأكيد كلمة المرور الجديدة</label>
-                <input
-                  type="password"
-                  required
-                  value={passwordForm.confirmPass}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPass: e.target.value })}
-                  style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
-                />
-              </div>
-
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.9rem', fontSize: '1rem' }}>
-                🔐 تحديث كلمة المرور الآن
-              </button>
-            </form>
           </div>
         )}
 
