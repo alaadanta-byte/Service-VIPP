@@ -2,13 +2,23 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const BackendContext = createContext();
 
+const defaultSiteSettings = {
+  siteName: 'Service VIP',
+  siteDescAr: 'منصتك الموثوقة للحصول على الاشتراكات الرقمية والخدمات VIP بأفضل الأسعار وأعلى جودة.',
+  siteDescEn: 'Your trusted platform for VIP digital subscriptions and premium services.',
+  whatsapp: '+201000000000',
+  email: 'support@servicevip.com',
+  currency: '$',
+  primaryColor: '#8b5cf6'
+};
+
 const defaultServices = [
   {
     id: 1,
     image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop',
     nameAr: 'نتفليكس بريميوم',
     nameEn: 'Netflix Premium',
-    descAr: 'اشتراك نتفليكس بريميوم 4K لمدة شهر كامل مع ضمان سنة',
+    descAr: 'اشتراك نتفليكس بريميوم 4K لمدة شهر كامل مع ضمان',
     descEn: 'Netflix Premium 4K subscription for one full month',
     categoryId: 1,
     originalPrice: 79.99,
@@ -75,6 +85,11 @@ const defaultOffers = [
 ];
 
 export function BackendProvider({ children }) {
+  const [siteSettings, setSiteSettings] = useState(() => {
+    const local = localStorage.getItem('svip-site-settings');
+    return local ? JSON.parse(local) : defaultSiteSettings;
+  });
+
   const [services, setServices] = useState(() => {
     const local = localStorage.getItem('svip-services');
     return local ? JSON.parse(local) : defaultServices;
@@ -98,6 +113,10 @@ export function BackendProvider({ children }) {
   const [lang, setLang] = useState(() => {
     return localStorage.getItem('svip-lang') || 'ar';
   });
+
+  useEffect(() => {
+    localStorage.setItem('svip-site-settings', JSON.stringify(siteSettings));
+  }, [siteSettings]);
 
   useEffect(() => {
     localStorage.setItem('svip-services', JSON.stringify(services));
@@ -124,6 +143,10 @@ export function BackendProvider({ children }) {
     document.dir = lang === 'ar' ? 'rtl' : 'ltr';
   }, [lang]);
 
+  const updateSiteSettings = (newSettings) => {
+    setSiteSettings(prev => ({ ...prev, ...newSettings }));
+  };
+
   const login = (username, password) => {
     if (username === 'owner@servicevip' && password === 'Service2030@') {
       const user = { username, name: 'مدير النظام الرئيسي', role: 'owner' };
@@ -148,22 +171,48 @@ export function BackendProvider({ children }) {
     return newComplaint;
   };
 
+  const updateComplaintStatus = (id, status) => {
+    setComplaints(prev => prev.map(c => c.id === id ? { ...c, status } : c));
+  };
+
+  const deleteComplaint = (id) => {
+    setComplaints(prev => prev.filter(c => c.id !== id));
+  };
+
   const addService = (serviceData) => {
     const newService = {
       id: Date.now(),
       rating: 5.0,
-      featured: false,
+      featured: true,
       ...serviceData
     };
     setServices(prev => [newService, ...prev]);
+  };
+
+  const updateService = (id, serviceData) => {
+    setServices(prev => prev.map(s => s.id === id ? { ...s, ...serviceData } : s));
   };
 
   const deleteService = (id) => {
     setServices(prev => prev.filter(s => s.id !== id));
   };
 
+  const addOffer = (offerData) => {
+    const newOffer = {
+      id: Date.now(),
+      ...offerData
+    };
+    setOffers(prev => [newOffer, ...prev]);
+  };
+
+  const deleteOffer = (id) => {
+    setOffers(prev => prev.filter(o => o.id !== id));
+  };
+
   return (
     <BackendContext.Provider value={{
+      siteSettings,
+      updateSiteSettings,
       services,
       offers,
       complaints,
@@ -173,8 +222,13 @@ export function BackendProvider({ children }) {
       login,
       logout,
       addComplaint,
+      updateComplaintStatus,
+      deleteComplaint,
       addService,
-      deleteService
+      updateService,
+      deleteService,
+      addOffer,
+      deleteOffer
     }}>
       {children}
     </BackendContext.Provider>

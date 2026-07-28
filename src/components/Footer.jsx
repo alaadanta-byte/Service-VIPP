@@ -2,7 +2,7 @@ import React from 'react';
 import { useBackend } from '../context/BackendContext';
 
 export default function Footer() {
-  const { lang } = useBackend();
+  const { siteSettings, lang } = useBackend();
 
   return (
     <footer style={{
@@ -16,7 +16,7 @@ export default function Footer() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
           gap: '2.5rem',
-          marginBotton: '3rem'
+          marginBottom: '3rem'
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
@@ -31,12 +31,10 @@ export default function Footer() {
                 fontWeight: 900,
                 color: '#fff'
               }}>V</div>
-              <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>Service VIP</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{siteSettings.siteName}</span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.8' }}>
-              {lang === 'ar' 
-                ? 'منصتك الموثوقة للحصول على الاشتراكات الرقمية والخدمات VIP بأفضل الأسعار وأعلى جودة.'
-                : 'Your trusted platform for VIP digital subscriptions and premium services at best prices.'}
+              {lang === 'ar' ? siteSettings.siteDescAr : siteSettings.siteDescEn}
             </p>
           </div>
 
@@ -45,9 +43,9 @@ export default function Footer() {
               {lang === 'ar' ? 'روابط سريعة' : 'Quick Links'}
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              <li><a href="/" style={{ hover: { color: 'var(--primary)' } }}>{lang === 'ar' ? 'الرئيسية' : 'Home'}</a></li>
-              <li><a href="/services">{lang === 'ar' ? 'المنتجات' : 'Services'}</a></li>
-              <li><a href="/offers">{lang === 'ar' ? 'الخصومات' : 'Offers'}</a></li>
+              <li><a href="/">{lang === 'ar' ? 'الرئيسية' : 'Home'}</a></li>
+              <li><a href="/services">{lang === 'ar' ? 'المنتجات والخدمات' : 'Services'}</a></li>
+              <li><a href="/offers">{lang === 'ar' ? 'الخصومات والعروض' : 'Offers'}</a></li>
               <li><a href="/complaints">{lang === 'ar' ? 'تقديم شكوى' : 'Complaints'}</a></li>
             </ul>
           </div>
@@ -57,10 +55,10 @@ export default function Footer() {
               {lang === 'ar' ? 'تواصل معنا' : 'Contact Us'}
             </h4>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-              📧 support@servicevip.com
+              📧 {siteSettings.email}
             </p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              💬 واتساب: +201000000000
+              💬 واتساب: {siteSettings.whatsapp}
             </p>
           </div>
         </div>
@@ -73,7 +71,7 @@ export default function Footer() {
           color: 'var(--text-muted)',
           fontSize: '0.85rem'
         }}>
-          © {new Date().getFullYear()} Service VIP. جميع الحقوق محفوظة.
+          © {new Date().getFullYear()} {siteSettings.siteName}. جميع الحقوق محفوظة.
         </div>
       </div>
     </footer>
