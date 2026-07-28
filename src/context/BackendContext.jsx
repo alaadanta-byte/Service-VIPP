@@ -12,7 +12,7 @@ const defaultSiteSettings = {
   instagram: 'https://instagram.com/servicevip',
   facebook: 'https://facebook.com/servicevip',
   email: 'support@servicevip.com',
-  currency: '$',
+  currency: 'ج.م',
   primaryColor: '#8b5cf6'
 };
 
@@ -22,60 +22,47 @@ const defaultAdminCreds = {
   name: 'مدير النظام الرئيسي'
 };
 
-const defaultServices = [
+// New Requested Products List
+const newDefaultServices = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop',
-    nameAr: 'نتفليكس بريميوم',
-    nameEn: 'Netflix Premium',
-    descAr: 'اشتراك نتفليكس بريميوم 4K لمدة شهر كامل مع ضمان',
-    descEn: 'Netflix Premium 4K subscription for one full month',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=400&h=250&fit=crop',
+    nameAr: 'شات جي بي تي بلس (ChatGPT Plus)',
+    nameEn: 'ChatGPT Plus',
+    descAr: 'اشتراك ChatGPT Plus شغال 100% مع الوصول الكامل لموديلات GPT-4o وDALL-E 3 وأسرع أداء.',
+    descEn: 'ChatGPT Plus subscription with unlimited access to GPT-4o and DALL-E 3.',
     categoryId: 1,
-    originalPrice: 79.99,
-    price: 29.99,
-    discount: 63,
-    rating: 4.9,
+    originalPrice: 500,
+    price: 500,
+    discount: 0,
+    rating: 5.0,
     featured: true
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=400&h=250&fit=crop',
-    nameAr: 'سبوتيفاي بريميوم',
-    nameEn: 'Spotify Premium',
-    descAr: 'اشتراك سبوتيفاي بريميوم لمدة 3 أشهر بدون إعلانات',
-    descEn: 'Spotify Premium subscription for 3 months ad-free',
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=250&fit=crop',
+    nameAr: 'جميناي برو (Gemini Pro)',
+    nameEn: 'Gemini Pro',
+    descAr: 'اشتراك جميناي برو المتطور من جوجل مع أحدث نماذج الذكاء الاصطناعي وسعة تحليلية فائقة.',
+    descEn: 'Google Gemini Pro advanced subscription for professional AI tasks.',
     categoryId: 1,
-    originalPrice: 49.99,
-    price: 19.99,
-    discount: 60,
-    rating: 4.8,
+    originalPrice: 450,
+    price: 450,
+    discount: 0,
+    rating: 4.9,
     featured: true
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1633265486064-086b219458ec?w=400&h=250&fit=crop',
-    nameAr: 'كانفا برو',
-    nameEn: 'Canva Pro',
-    descAr: 'اشتراك كانفا برو لمدة سنة كاملة مع جميع المميزات المدفوعة',
-    descEn: 'Canva Pro annual subscription with all premium features',
+    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&h=250&fit=crop',
+    nameAr: 'أدوبي كريتيف كلاود (Adobe)',
+    nameEn: 'Adobe Creative Cloud',
+    descAr: 'اشتراك أدوبي الشامل لجميع البرامج والتطبيقات (Photoshop, Premiere, Illustrator) بضمان كامل.',
+    descEn: 'Adobe Creative Cloud full suite access for all creative applications.',
     categoryId: 2,
-    originalPrice: 129.99,
-    price: 49.99,
-    discount: 62,
-    rating: 4.7,
-    featured: true
-  },
-  {
-    id: 4,
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop',
-    nameAr: 'شات جي بي تي بلس',
-    nameEn: 'ChatGPT Plus',
-    descAr: 'اشتراك ChatGPT Plus لمدة شهر مع GPT-4 غير محدود',
-    descEn: 'ChatGPT Plus monthly subscription with unlimited GPT-4',
-    categoryId: 3,
-    originalPrice: 89.99,
-    price: 39.99,
-    discount: 55,
+    originalPrice: 550,
+    price: 550,
+    discount: 0,
     rating: 5.0,
     featured: true
   }
@@ -84,20 +71,21 @@ const defaultServices = [
 const defaultOffers = [
   {
     id: 1,
-    titleAr: 'عرض خاص - حزمة الترفيه',
-    titleEn: 'Special Offer - Entertainment Bundle',
-    descAr: 'احصل على نتفليكس + سبوتيفاي خصم إضافي 20%',
-    descEn: 'Get Netflix + Spotify with extra 20% discount',
-    discount: 20,
+    titleAr: 'عرض خاص - حزمة الذكاء الاصطناعي',
+    titleEn: 'Special Offer - AI Bundle',
+    descAr: 'احصل على اشتراك ChatGPT Plus + Gemini Pro بخصم مميز',
+    descEn: 'Get ChatGPT Plus + Gemini Pro with special discount',
+    discount: 15,
     badgeAr: 'عرض لفترة محدودة',
-    badgeEn: 'Limited Time'
+    badgeEn: 'Limited Time',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=400&h=250&fit=crop'
   }
 ];
 
 export function BackendProvider({ children }) {
   const [siteSettings, setSiteSettings] = useState(() => {
     const local = localStorage.getItem('svip-site-settings');
-    return local ? JSON.parse(local) : defaultSiteSettings;
+    return local ? { ...defaultSiteSettings, ...JSON.parse(local), currency: 'ج.م' } : defaultSiteSettings;
   });
 
   const [adminCreds, setAdminCreds] = useState(() => {
@@ -105,9 +93,9 @@ export function BackendProvider({ children }) {
     return local ? JSON.parse(local) : defaultAdminCreds;
   });
 
+  // Reset & Use New Products List
   const [services, setServices] = useState(() => {
-    const local = localStorage.getItem('svip-services');
-    return local ? JSON.parse(local) : defaultServices;
+    return newDefaultServices;
   });
 
   const [offers, setOffers] = useState(() => {
