@@ -28,9 +28,15 @@ export function BackendProvider({ children }) {
   const [siteSettings, setSiteSettings] = useState(() => {
     const local = localStorage.getItem('svip-site-settings');
     const token = getActiveGitHubToken();
-    return local 
-      ? { ...defaultSiteSettings, ...JSON.parse(local), githubToken: token } 
-      : { ...defaultSiteSettings, githubToken: token };
+    let parsedLocal = {};
+    if (local) {
+      try { parsedLocal = JSON.parse(local); } catch (e) {}
+    }
+    return {
+      ...defaultSiteSettings,
+      ...parsedLocal,
+      githubToken: (parsedLocal.githubToken && parsedLocal.githubToken.trim()) ? parsedLocal.githubToken.trim() : token
+    };
   });
 
   const [adminCreds, setAdminCreds] = useState(() => {
@@ -105,9 +111,11 @@ export function BackendProvider({ children }) {
     const curSettings = updatedSettings || siteSettings;
     const curServices = updatedServices || services;
     const curOffers = updatedOffers || offers;
-    const activeToken = curSettings.githubToken || getActiveGitHubToken();
+    const activeToken = (curSettings.githubToken && curSettings.githubToken.trim()) 
+      ? curSettings.githubToken.trim() 
+      : getActiveGitHubToken();
 
-    if (!curSettings.autoSyncGitHub || !activeToken) return;
+    if (!curSettings.autoSyncGitHub) return;
 
     setSyncStatus({ status: 'syncing', message: '⚡ جاري رفع التعديلات فوراً وتحديث GitHub تلقائياً...' });
 
@@ -131,10 +139,12 @@ export function BackendProvider({ children }) {
   };
 
   const updateSiteSettings = (newSettings) => {
-    const updated = { ...siteSettings, ...newSettings };
-    if (newSettings.githubToken) {
-      localStorage.setItem('svip-github-token', newSettings.githubToken.trim());
-    }
+    const validToken = (newSettings.githubToken && newSettings.githubToken.trim())
+      ? newSettings.githubToken.trim()
+      : getActiveGitHubToken();
+
+    const updated = { ...siteSettings, ...newSettings, githubToken: validToken };
+    localStorage.setItem('svip-github-token', validToken);
     setSiteSettings(updated);
     triggerGitHubSync(updated, services, offers);
   };
