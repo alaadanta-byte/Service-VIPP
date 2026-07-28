@@ -6,7 +6,7 @@ const BackendContext = createContext();
 
 const defaultSiteSettings = {
   ...initialSiteData.siteSettings,
-  githubToken: '',
+  githubToken: localStorage.getItem('svip-github-token') || '',
   autoSyncGitHub: true
 };
 
@@ -19,7 +19,10 @@ const defaultAdminCreds = {
 export function BackendProvider({ children }) {
   const [siteSettings, setSiteSettings] = useState(() => {
     const local = localStorage.getItem('svip-site-settings');
-    return local ? { ...defaultSiteSettings, ...JSON.parse(local) } : defaultSiteSettings;
+    const token = localStorage.getItem('svip-github-token') || '';
+    return local 
+      ? { ...defaultSiteSettings, ...JSON.parse(local), githubToken: token } 
+      : { ...defaultSiteSettings, githubToken: token };
   });
 
   const [adminCreds, setAdminCreds] = useState(() => {
@@ -54,6 +57,9 @@ export function BackendProvider({ children }) {
   const [syncStatus, setSyncStatus] = useState({ status: 'idle', message: '' });
 
   useEffect(() => {
+    if (siteSettings.githubToken) {
+      localStorage.setItem('svip-github-token', siteSettings.githubToken);
+    }
     localStorage.setItem('svip-site-settings', JSON.stringify(siteSettings));
   }, [siteSettings]);
 
@@ -91,10 +97,11 @@ export function BackendProvider({ children }) {
     const curSettings = updatedSettings || siteSettings;
     const curServices = updatedServices || services;
     const curOffers = updatedOffers || offers;
+    const activeToken = curSettings.githubToken || localStorage.getItem('svip-github-token') || '';
 
-    if (!curSettings.autoSyncGitHub || !curSettings.githubToken) return;
+    if (!curSettings.autoSyncGitHub || !activeToken) return;
 
-    setSyncStatus({ status: 'syncing', message: '⚡ جاري رفع التغييرات تلقائياً إلى GitHub...' });
+    setSyncStatus({ status: 'syncing', message: '⚡ جاري رفع التعديلات فوراً إلى GitHub...' });
 
     const payload = {
       siteSettings: curSettings,
@@ -102,10 +109,10 @@ export function BackendProvider({ children }) {
       offers: curOffers
     };
 
-    const res = await syncDataToGitHub(payload, curSettings.githubToken);
+    const res = await syncDataToGitHub(payload, activeToken);
 
     if (res.success) {
-      setSyncStatus({ status: 'success', message: '✅ تم الرفع والتعديل على GitHub بنجاح! موقع Vercel يعيد البناء الآن 🚀' });
+      setSyncStatus({ status: 'success', message: '✅ تم الرفع على GitHub بنجاح! موقع Vercel يعيد البناء الآن تلقائياً 🚀' });
     } else {
       setSyncStatus({ status: 'error', message: `⚠️ ${res.message}` });
     }
@@ -117,6 +124,9 @@ export function BackendProvider({ children }) {
 
   const updateSiteSettings = (newSettings) => {
     const updated = { ...siteSettings, ...newSettings };
+    if (newSettings.githubToken) {
+      localStorage.setItem('svip-github-token', newSettings.githubToken);
+    }
     setSiteSettings(updated);
     triggerGitHubSync(updated, services, offers);
   };
