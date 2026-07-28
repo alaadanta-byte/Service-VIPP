@@ -245,27 +245,18 @@ input, textarea, select {
   flex-direction: column;
 }
 
-.price-original {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-
 .price-current {
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--primary-light);
 }
 
-.badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.badge-discount {
-  background: rgba(233, 69, 96, 0.2);
-  color: var(--accent-light);
-  border: 1px solid rgba(233, 69, 96, 0.4);
+/* Responsive Navigation Rules */
+@media (max-width: 900px) {
+  .nav-desktop-links, .nav-desktop-actions {
+    display: none !important;
+  }
+  .nav-mobile-toggle {
+    display: block !important;
+  }
 }
