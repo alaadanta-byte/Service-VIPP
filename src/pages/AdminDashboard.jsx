@@ -8,6 +8,7 @@ export default function AdminDashboard() {
     logout,
     siteSettings,
     updateSiteSettings,
+    changeAdminPassword,
     services,
     offers,
     complaints,
@@ -16,24 +17,27 @@ export default function AdminDashboard() {
     deleteService,
     addOffer,
     deleteOffer,
-    updateComplaintStatus,
     deleteComplaint,
     lang
   } = useBackend();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'settings' | 'services' | 'offers' | 'complaints'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'settings' | 'security' | 'services' | 'offers' | 'complaints'
   
-  // Site Settings Form
+  // Site Settings Form State
   const [settingsForm, setSettingsForm] = useState(siteSettings);
   const [savedSettingsMsg, setSavedSettingsMsg] = useState(false);
 
-  // New Service Modal / Form
+  // Password Security Form State
+  const [passwordForm, setPasswordForm] = useState({ currentPass: '', newPass: '', confirmPass: '' });
+  const [passwordFeedback, setPasswordFeedback] = useState({ type: '', msg: '' });
+
+  // Service Modal State
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState(null);
   const [serviceForm, setServiceForm] = useState({ nameAr: '', nameEn: '', price: '', originalPrice: '', descAr: '', image: '' });
 
-  // New Offer Form
+  // Offer Modal State
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [offerForm, setOfferForm] = useState({ titleAr: '', titleEn: '', descAr: '', discount: '', badgeAr: 'عرض خاص' });
 
@@ -42,7 +46,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  // Handle Site Settings Save
+  // Save Settings
   const handleSaveSettings = (e) => {
     e.preventDefault();
     updateSiteSettings(settingsForm);
@@ -50,7 +54,31 @@ export default function AdminDashboard() {
     setTimeout(() => setSavedSettingsMsg(false), 3000);
   };
 
-  // Handle Add/Edit Service
+  // Change Password
+  const handleChangePassword = (e) => {
+    e.preventDefault();
+    setPasswordFeedback({ type: '', msg: '' });
+
+    if (passwordForm.newPass.length < 6) {
+      setPasswordFeedback({ type: 'error', msg: 'كلمة المرور الجديدة يجب أن تكون 6 أحرف أو أكثر' });
+      return;
+    }
+
+    if (passwordForm.newPass !== passwordForm.confirmPass) {
+      setPasswordFeedback({ type: 'error', msg: 'كلمة المرور الجديدة وتأكيدها غير متطابقين' });
+      return;
+    }
+
+    const res = changeAdminPassword(passwordForm.currentPass, passwordForm.newPass);
+    if (res.success) {
+      setPasswordFeedback({ type: 'success', msg: res.message });
+      setPasswordForm({ currentPass: '', newPass: '', confirmPass: '' });
+    } else {
+      setPasswordFeedback({ type: 'error', msg: res.message });
+    }
+  };
+
+  // Service Form Handlers
   const handleServiceSubmit = (e) => {
     e.preventDefault();
     const priceNum = parseFloat(serviceForm.price) || 0;
@@ -92,7 +120,7 @@ export default function AdminDashboard() {
     setShowServiceModal(true);
   };
 
-  // Handle Add Offer
+  // Offer Form Handlers
   const handleOfferSubmit = (e) => {
     e.preventDefault();
     addOffer({
@@ -123,10 +151,14 @@ export default function AdminDashboard() {
       }}>
         <div style={{ padding: '0 0.5rem 1.5rem 0.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--primary-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff' }}>V</div>
+            {siteSettings.siteLogo ? (
+              <img src={siteSettings.siteLogo} alt="Logo" style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'cover' }} />
+            ) : (
+              <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'var(--primary-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff' }}>V</div>
+            )}
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>لوحة الإدارة الشاملة</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{currentUser.name}</p>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{siteSettings.siteName}</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>لوحة التحكم الشاملة</p>
             </div>
           </div>
         </div>
@@ -158,7 +190,22 @@ export default function AdminDashboard() {
             color: activeTab === 'settings' ? 'var(--primary-light)' : 'var(--text-secondary)'
           }}
         >
-          🌐 إعدادات ومحتوى الموقع
+          🌐 إعدادات وصورة الموقع
+        </button>
+
+        <button
+          onClick={() => setActiveTab('security')}
+          style={{
+            padding: '0.85rem 1.2rem',
+            borderRadius: '12px',
+            textAlign: 'right',
+            fontWeight: 700,
+            fontSize: '0.95rem',
+            background: activeTab === 'security' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+            color: activeTab === 'security' ? 'var(--primary-light)' : 'var(--text-secondary)'
+          }}
+        >
+          🔑 تغيير كلمة المرور
         </button>
 
         <button
@@ -224,13 +271,13 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Content Body */}
+      {/* Main Panel */}
       <main style={{ flex: 1, padding: '3rem 2.5rem' }}>
         
-        {/* 1. OVERVIEW */}
+        {/* OVERVIEW */}
         {activeTab === 'overview' && (
           <div>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>نظرة عامة وإحصائيات الموقع</h2>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>نظرة عامة على الموقع</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
               <div className="glass-panel" style={{ padding: '1.8rem', borderRadius: '16px' }}>
@@ -244,25 +291,27 @@ export default function AdminDashboard() {
               </div>
 
               <div className="glass-panel" style={{ padding: '1.8rem', borderRadius: '16px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>الشكاوى والرسائل الواردة</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>الشكاوى والرسائل</span>
                 <h3 style={{ fontSize: '2.2rem', fontWeight: 900, marginTop: '0.5rem', color: '#ffb703' }}>{complaints.length}</h3>
               </div>
             </div>
           </div>
         )}
 
-        {/* 2. SITE SETTINGS */}
+        {/* SITE SETTINGS */}
         {activeTab === 'settings' && (
-          <div style={{ maxWidth: '800px' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>تعديل محتوى وإعدادات الموقع</h2>
+          <div style={{ maxWidth: '850px' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>إعدادات وصورة ومحتوى الموقع</h2>
 
             {savedSettingsMsg && (
               <div style={{ background: 'rgba(78, 223, 143, 0.15)', border: '1px solid rgba(78, 223, 143, 0.4)', color: '#4edf8f', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', fontWeight: 700 }}>
-                ✅ تم حفظ إعدادات الموقع فورياً وتطبيقها على جميع الصفحات!
+                ✅ تم حفظ صورة وإعدادات الموقع فورياً وتطبيقها على جميع الصفحات!
               </div>
             )}
 
             <form onSubmit={handleSaveSettings} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
+              
+              {/* Site Name & Logo URL */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>اسم الموقع (Site Name)</label>
@@ -275,20 +324,29 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>العملة الرئيسية (Currency Symbol)</label>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>رابط صورة اللوجو (Logo Image URL)</label>
                   <input
                     type="text"
-                    required
-                    value={settingsForm.currency}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
+                    placeholder="https://example.com/logo.png"
+                    value={settingsForm.siteLogo}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, siteLogo: e.target.value })}
                     style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
                   />
                 </div>
               </div>
 
+              {/* Logo Preview */}
+              {settingsForm.siteLogo && (
+                <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>معاينة الشعار:</span>
+                  <img src={settingsForm.siteLogo} alt="Logo Preview" style={{ height: '40px', borderRadius: '8px', objectFit: 'contain' }} />
+                </div>
+              )}
+
+              {/* Contact Info (WhatsApp & Email) */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>رقم الواتساب الدعم</label>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>💬 رقم الواتساب (WhatsApp)</label>
                   <input
                     type="text"
                     required
@@ -298,7 +356,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>البريد الإلكتروني للدعم</label>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>📧 البريد الإلكتروني للدعم</label>
                   <input
                     type="email"
                     required
@@ -309,8 +367,45 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Social Media Links */}
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '1.5rem 0 1rem 0', color: 'var(--primary-light)' }}>🔗 روابط وسائل التواصل الاجتماعي</h4>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.2rem', marginBottom: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>تليجرام (Telegram)</label>
+                  <input
+                    type="text"
+                    placeholder="https://t.me/..."
+                    value={settingsForm.telegram}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, telegram: e.target.value })}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>انستجرام (Instagram)</label>
+                  <input
+                    type="text"
+                    placeholder="https://instagram.com/..."
+                    value={settingsForm.instagram}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>فيسبوك (Facebook)</label>
+                  <input
+                    type="text"
+                    placeholder="https://facebook.com/..."
+                    value={settingsForm.facebook}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, facebook: e.target.value })}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
+              </div>
+
+              {/* Site Description */}
               <div style={{ marginBottom: '1.8rem' }}>
-                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>الوصف العام للموقع (بالعربية)</label>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>وصف الموقع (بالعربية)</label>
                 <textarea
                   rows="3"
                   required
@@ -320,14 +415,74 @@ export default function AdminDashboard() {
                 ></textarea>
               </div>
 
-              <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem 2rem', fontSize: '1rem' }}>
-                💾 حفظ التعديلات
+              <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem 2.2rem', fontSize: '1rem' }}>
+                💾 حفظ كافة الإعدادات والروابط
               </button>
             </form>
           </div>
         )}
 
-        {/* 3. SERVICES */}
+        {/* SECURITY / CHANGE PASSWORD */}
+        {activeTab === 'security' && (
+          <div style={{ maxWidth: '550px' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>🔑 تغيير كلمة مرور الأدمن</h2>
+
+            {passwordFeedback.msg && (
+              <div style={{
+                background: passwordFeedback.type === 'success' ? 'rgba(78, 223, 143, 0.15)' : 'rgba(233, 69, 96, 0.15)',
+                border: passwordFeedback.type === 'success' ? '1px solid rgba(78, 223, 143, 0.4)' : '1px solid rgba(233, 69, 96, 0.4)',
+                color: passwordFeedback.type === 'success' ? '#4edf8f' : 'var(--accent-light)',
+                padding: '1rem',
+                borderRadius: '12px',
+                marginBottom: '1.5rem',
+                fontWeight: 700
+              }}>
+                {passwordFeedback.type === 'success' ? '✅ ' : '⚠️ '} {passwordFeedback.msg}
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="glass-panel" style={{ padding: '2.5rem', borderRadius: '20px' }}>
+              <div style={{ marginBottom: '1.2rem' }}>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>كلمة المرور الحالية</label>
+                <input
+                  type="password"
+                  required
+                  value={passwordForm.currentPass}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPass: e.target.value })}
+                  style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '1.2rem' }}>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>كلمة المرور الجديدة</label>
+                <input
+                  type="password"
+                  required
+                  value={passwordForm.newPass}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, newPass: e.target.value })}
+                  style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '1.8rem' }}>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>تأكيد كلمة المرور الجديدة</label>
+                <input
+                  type="password"
+                  required
+                  value={passwordForm.confirmPass}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPass: e.target.value })}
+                  style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)' }}
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.9rem', fontSize: '1rem' }}>
+                🔐 تحديث كلمة المرور الآن
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* SERVICES */}
         {activeTab === 'services' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -370,7 +525,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* 4. OFFERS */}
+        {/* OFFERS */}
         {activeTab === 'offers' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -399,7 +554,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* 5. COMPLAINTS */}
+        {/* COMPLAINTS */}
         {activeTab === 'complaints' && (
           <div>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem' }}>إدارة الشكاوى والرسائل</h2>

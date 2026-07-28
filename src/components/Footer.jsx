@@ -20,17 +20,21 @@ export default function Footer() {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                background: 'var(--primary-gradient)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 900,
-                color: '#fff'
-              }}>V</div>
+              {siteSettings.siteLogo ? (
+                <img src={siteSettings.siteLogo} alt="Logo" style={{ height: '36px', borderRadius: '8px' }} />
+              ) : (
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  background: 'var(--primary-gradient)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 900,
+                  color: '#fff'
+                }}>V</div>
+              )}
               <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{siteSettings.siteName}</span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.8' }}>
@@ -57,9 +61,28 @@ export default function Footer() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               📧 {siteSettings.email}
             </p>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
               💬 واتساب: {siteSettings.whatsapp}
             </p>
+
+            {/* Social Media Links */}
+            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.8rem' }}>
+              {siteSettings.telegram && (
+                <a href={siteSettings.telegram} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                  ✈️ تليجرام
+                </a>
+              )}
+              {siteSettings.instagram && (
+                <a href={siteSettings.instagram} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                  📷 انستجرام
+                </a>
+              )}
+              {siteSettings.facebook && (
+                <a href={siteSettings.facebook} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                  📘 فيسبوك
+                </a>
+              )}
+            </div>
           </div>
         </div>
 

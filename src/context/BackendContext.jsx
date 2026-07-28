@@ -4,12 +4,22 @@ const BackendContext = createContext();
 
 const defaultSiteSettings = {
   siteName: 'Service VIP',
+  siteLogo: '',
   siteDescAr: 'منصتك الموثوقة للحصول على الاشتراكات الرقمية والخدمات VIP بأفضل الأسعار وأعلى جودة.',
   siteDescEn: 'Your trusted platform for VIP digital subscriptions and premium services.',
   whatsapp: '+201000000000',
+  telegram: 'https://t.me/servicevip',
+  instagram: 'https://instagram.com/servicevip',
+  facebook: 'https://facebook.com/servicevip',
   email: 'support@servicevip.com',
   currency: '$',
   primaryColor: '#8b5cf6'
+};
+
+const defaultAdminCreds = {
+  username: 'owner@servicevip',
+  password: 'Service2030@',
+  name: 'مدير النظام الرئيسي'
 };
 
 const defaultServices = [
@@ -90,6 +100,11 @@ export function BackendProvider({ children }) {
     return local ? JSON.parse(local) : defaultSiteSettings;
   });
 
+  const [adminCreds, setAdminCreds] = useState(() => {
+    const local = localStorage.getItem('svip-admin-creds');
+    return local ? JSON.parse(local) : defaultAdminCreds;
+  });
+
   const [services, setServices] = useState(() => {
     const local = localStorage.getItem('svip-services');
     return local ? JSON.parse(local) : defaultServices;
@@ -117,6 +132,10 @@ export function BackendProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('svip-site-settings', JSON.stringify(siteSettings));
   }, [siteSettings]);
+
+  useEffect(() => {
+    localStorage.setItem('svip-admin-creds', JSON.stringify(adminCreds));
+  }, [adminCreds]);
 
   useEffect(() => {
     localStorage.setItem('svip-services', JSON.stringify(services));
@@ -148,12 +167,20 @@ export function BackendProvider({ children }) {
   };
 
   const login = (username, password) => {
-    if (username === 'owner@servicevip' && password === 'Service2030@') {
-      const user = { username, name: 'مدير النظام الرئيسي', role: 'owner' };
+    if (username === adminCreds.username && password === adminCreds.password) {
+      const user = { username: adminCreds.username, name: adminCreds.name, role: 'owner' };
       setCurrentUser(user);
       return { success: true, user };
     }
     return { success: false, message: lang === 'ar' ? 'بيانات الدخول غير صحيحة' : 'Invalid credentials' };
+  };
+
+  const changeAdminPassword = (currentPass, newPass) => {
+    if (currentPass !== adminCreds.password) {
+      return { success: false, message: lang === 'ar' ? 'كلمة المرور الحالية غير صحيحة' : 'Current password is wrong' };
+    }
+    setAdminCreds(prev => ({ ...prev, password: newPass }));
+    return { success: true, message: lang === 'ar' ? 'تم تغيير كلمة المرور بنجاح' : 'Password changed successfully' };
   };
 
   const logout = () => {
@@ -213,6 +240,8 @@ export function BackendProvider({ children }) {
     <BackendContext.Provider value={{
       siteSettings,
       updateSiteSettings,
+      adminCreds,
+      changeAdminPassword,
       services,
       offers,
       complaints,
