@@ -24,7 +24,7 @@
       "originalPrice": 500,
       "price": 500,
       "discount": 0,
-      "rating": 5.0,
+      "rating": 5,
       "featured": true
     },
     {
@@ -52,7 +52,7 @@
       "originalPrice": 550,
       "price": 550,
       "discount": 0,
-      "rating": 5.0,
+      "rating": 5,
       "featured": true
     }
   ],
