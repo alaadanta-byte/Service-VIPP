@@ -1591,3 +1591,148 @@ function createParticles() {
 }
 
 document.addEventListener('DOMContentLoaded', createParticles);
+
+// ========== Global Interactive Handlers & Service Modal ==========
+window.cartItems = [];
+
+function buyService(serviceId) {
+  const service = (AppState.services || []).find(s => s.id === serviceId) || {
+    id: serviceId,
+    nameAr: serviceId === 1 ? 'ChatGPT Plus' : serviceId === 2 ? 'Claude Pro' : serviceId === 3 ? 'Midjourney' : serviceId === 4 ? 'Gemini Advanced' : 'Perplexity Pro',
+    nameEn: serviceId === 1 ? 'ChatGPT Plus' : serviceId === 2 ? 'Claude Pro' : serviceId === 3 ? 'Midjourney' : serviceId === 4 ? 'Gemini Advanced' : 'Perplexity Pro',
+    price: 9.99,
+    descAr: serviceId === 1 ? 'الوصول إلى GPT-4o وأحدث المميزات' : serviceId === 2 ? 'Claude 3 Opus أداء متقدم' : serviceId === 3 ? 'إنشاء صور احترافية بالذكاء الاصطناعي' : serviceId === 4 ? 'Gemini 1.5 Pro من Google' : 'بحث ذكي بمصادر موثوقة'
+  };
+
+  const modalHtml = `
+    <div class="custom-modal-backdrop" id="service-modal" style="position:fixed;inset:0;background:rgba(5,6,15,0.85);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn 0.3s ease;">
+      <div class="custom-modal-card" style="background:#0d1023;border:1px solid rgba(124,58,237,0.35);border-radius:24px;max-width:480px;width:100%;padding:2rem;box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(124,58,237,0.25);position:relative;">
+        <button onclick="closeServiceModal()" style="position:absolute;top:18px;left:18px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;"><i class="fas fa-times"></i></button>
+        
+        <div style="text-align:center;margin-bottom:1.5rem;">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg, #7c3aed, #4f46e5);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem auto;color:#fff;font-size:1.8rem;box-shadow:0 8px 25px rgba(124,58,237,0.45);">
+            <i class="fas fa-robot"></i>
+          </div>
+          <h2 style="font-size:1.6rem;font-weight:900;color:#ffffff;margin-bottom:0.4rem;">${service.nameAr}</h2>
+          <p style="color:#94a3b8;font-size:0.95rem;line-height:1.5;">${service.descAr}</p>
+        </div>
+
+        <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:16px;padding:1rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:#cbd5e1;font-weight:600;">سعر الاشتراك:</span>
+          <span style="font-size:1.5rem;font-weight:900;color:#ffffff;">${service.price} $ <small style="font-size:0.85rem;color:#94a3b8;">/ شهر</small></span>
+        </div>
+
+        <form id="order-modal-form" onsubmit="handleOrderSubmit(event, ${service.id}, '${service.nameAr}')">
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;color:#cbd5e1;font-size:0.88rem;margin-bottom:0.4rem;font-weight:600;">الاسم الكامل</label>
+            <input type="text" required placeholder="أدخل اسمك الكريم" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);padding:0.75rem 1rem;border-radius:12px;color:#fff;font-size:0.95rem;">
+          </div>
+          
+          <div style="margin-bottom:1.5rem;">
+            <label style="display:block;color:#cbd5e1;font-size:0.88rem;margin-bottom:0.4rem;font-weight:600;">رقم الواتساب أو البريد الإلكتروني</label>
+            <input type="text" required placeholder="مثال: +966500000000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);padding:0.75rem 1rem;border-radius:12px;color:#fff;font-size:0.95rem;">
+          </div>
+
+          <div style="display:flex;gap:0.75rem;">
+            <button type="submit" style="flex:1;background:linear-gradient(135deg, #7c3aed, #6366f1);color:#fff;font-weight:800;padding:0.85rem;border-radius:14px;border:none;cursor:pointer;box-shadow:0 8px 25px rgba(124,58,237,0.5);font-size:1rem;">
+              <i class="fas fa-check-circle"></i> تأكيد وحفظ الطلب
+            </button>
+            <button type="button" onclick="addToCart(${service.id}, '${service.nameAr}', ${service.price})" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-weight:700;padding:0.85rem;border-radius:14px;cursor:pointer;font-size:0.95rem;">
+              <i class="fas fa-cart-plus"></i> للسلة
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  closeServiceModal();
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closeServiceModal() {
+  const existing = document.getElementById('service-modal');
+  if (existing) existing.remove();
+}
+
+function handleOrderSubmit(event, serviceId, serviceName) {
+  event.preventDefault();
+  closeServiceModal();
+  showNotification('success', 'تم إرسال الطلب بنجاح! 🚀', `شكرًا لطلبك اشتراك ${serviceName}. يتواصل معك فريق الدعم فوراً لتفعيل الحساب.`);
+}
+
+function addToCart(serviceId, name, price) {
+  window.cartItems.push({ id: serviceId, name, price });
+  updateCartBadge();
+  closeServiceModal();
+  showNotification('success', 'تمت الإضافة للسلة 🛒', `تمت إضافة ${name} إلى سلة المشتريات بنجاح.`);
+}
+
+function updateCartBadge() {
+  const badges = document.querySelectorAll('.cart-badge');
+  badges.forEach(badge => badge.textContent = window.cartItems.length);
+}
+
+function openCartModal() {
+  const items = window.cartItems || [];
+  const total = items.reduce((acc, item) => acc + item.price, 0).toFixed(2);
+  
+  const itemsHtml = items.length > 0 ? items.map((item, idx) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.08);">
+      <div>
+        <h4 style="color:#fff;font-size:0.95rem;font-weight:700;">${item.name}</h4>
+        <span style="color:#a78bfa;font-size:0.85rem;">${item.price} $</span>
+      </div>
+      <button onclick="removeFromCart(${idx})" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash"></i></button>
+    </div>
+  `).join('') : '<p style="text-align:center;color:#94a3b8;padding:2rem 0;">سلة المشتريات فارغة حالياً.</p>';
+
+  const modalHtml = `
+    <div class="custom-modal-backdrop" id="cart-modal" style="position:fixed;inset:0;background:rgba(5,6,15,0.85);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+      <div style="background:#0d1023;border:1px solid rgba(124,58,237,0.35);border-radius:24px;max-width:440px;width:100%;padding:2rem;position:relative;">
+        <button onclick="document.getElementById('cart-modal').remove()" style="position:absolute;top:18px;left:18px;background:rgba(255,255,255,0.06);border:none;color:#94a3b8;width:34px;height:34px;border-radius:50%;cursor:pointer;"><i class="fas fa-times"></i></button>
+        <h3 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:1.25rem;"><i class="fas fa-shopping-basket" style="color:#a78bfa;"></i> سلة المشتريات</h3>
+        <div style="max-height:220px;overflow-y:auto;margin-bottom:1.25rem;">
+          ${itemsHtml}
+        </div>
+        ${items.length > 0 ? `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;font-weight:800;color:#fff;">
+            <span>المجموع الإجمالي:</span>
+            <span style="font-size:1.4rem;color:#a78bfa;">${total} $</span>
+          </div>
+          <button onclick="checkoutCart()" style="width:100%;background:linear-gradient(135deg, #7c3aed, #6366f1);color:#fff;font-weight:800;padding:0.85rem;border-radius:14px;border:none;cursor:pointer;">إتمام الطلب والدفع 💳</button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('cart-modal')?.remove();
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function removeFromCart(index) {
+  window.cartItems.splice(index, 1);
+  updateCartBadge();
+  openCartModal();
+}
+
+function checkoutCart() {
+  document.getElementById('cart-modal')?.remove();
+  window.cartItems = [];
+  updateCartBadge();
+  showNotification('success', 'تم الدفع وتأكيد السلة! 🎉', 'شكراً لك، تم إكمال طلب السلة بنجاح.');
+}
+
+// Bind Event Listeners for Cart Button & Theme Toggle & FAQ
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.cart-btn').forEach(btn => {
+    btn.addEventListener('click', openCartModal);
+  });
+
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      showNotification('info', 'الوضع المظلم 🌙', 'المتجر مجهّز بالكامل بالوضع المظلم البنفسجي الفاخر.');
+    });
+  });
+});
+
