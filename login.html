@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service VIP - تسجيل الدخول</title>
+  <meta name="description" content="سجل دخولك إلى لوحة التحكم الخاصة بموقع Service VIP">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%238b5cf6' rx='20' width='100' height='100'/><text x='50' y='65' text-anchor='middle' fill='%231a1a2e' font-size='45' font-weight='900'>V</text></svg>">
+</head>
+<body>
+
+  <!-- Notifications -->
+  <div class="notifications-container"></div>
+
+  <!-- Login Area -->
+  <div class="login-page">
+    <div class="login-bg"></div>
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">V</div>
+        <h1 class="login-title" data-translate="loginTitle">تسجيل الدخول</h1>
+        <p class="login-subtitle" data-translate="loginSubtitle">مرحباً بعودتك! سجل دخولك للوصول إلى لوحة التحكم</p>
+      </div>
+
+      <!-- Error message container -->
+      <div class="login-error-msg">
+        <i class="fas fa-exclamation-circle"></i>
+        <span data-translate="loginError">بيانات الدخول غير صحيحة</span>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label class="form-label" data-translate="username">اسم المستخدم / البريد الإلكتروني</label>
+          <input type="text" class="form-input" name="username" placeholder="owner@servicevip" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-translate="password">كلمة المرور</label>
+          <input type="password" class="form-input" name="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.5rem;">
+          <i class="fas fa-sign-in-alt"></i>
+          <span data-translate="signIn">تسجيل الدخول</span>
+        </button>
+      </form>
+
+      <div style="display:flex;justify-content:space-between;margin-top:2rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.08);">
+        <a href="index.html" class="btn btn-sm btn-glass"><i class="fas fa-arrow-right" style="transform:scaleX(-1);"></i> الرئيسية</a>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn btn-sm btn-glass lang-toggle" onclick="toggleLanguage()">EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/backend.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

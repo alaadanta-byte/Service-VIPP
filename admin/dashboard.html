@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service VIP - لوحة التحكم</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%238b5cf6' rx='20' width='100' height='100'/><text x='50' y='65' text-anchor='middle' fill='%231a1a2e' font-size='45' font-weight='900'>V</text></svg>">
+</head>
+<body class="admin-body">
+
+  <!-- Notifications Container -->
+  <div class="notifications-container"></div>
+
+  <!-- Admin Layout Wrapper -->
+  <div class="admin-layout">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-brand">
+          <div class="admin-sidebar-logo">V</div>
+          <span class="admin-sidebar-title">Service VIP</span>
+        </div>
+        <button class="admin-sidebar-close" aria-label="Close Sidebar"><i class="fas fa-times"></i></button>
+      </div>
+
+      <nav class="admin-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title" data-translate-admin="dashboard">لوحة التحكم</div>
+          
+          <a href="#" class="admin-nav-link active" data-section="overview">
+            <i class="fas fa-chart-pie"></i>
+            <span data-translate-admin="overview">نظرة عامة</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="website">
+            <i class="fas fa-desktop"></i>
+            <span data-translate-admin="websiteManagement">إدارة الموقع</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="services">
+            <i class="fas fa-box-open"></i>
+            <span data-translate-admin="servicesManagement">إدارة المنتجات</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="offers">
+            <i class="fas fa-percent"></i>
+            <span data-translate-admin="offersManagement">إدارة الخصومات والعروض</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="coupons">
+            <i class="fas fa-ticket-alt"></i>
+            <span data-translate-admin="couponsManagement">كوبونات الخصم</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="users">
+            <i class="fas fa-users"></i>
+            <span data-translate-admin="usersManagement">إدارة المستخدمين</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="complaints">
+            <i class="fas fa-exclamation-circle"></i>
+            <span data-translate-admin="complaintsManagement">إدارة الشكاوى</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="orders">
+            <i class="fas fa-shopping-cart"></i>
+            <span data-translate-admin="ordersManagement">الطلبات</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="settings">
+            <i class="fas fa-cog"></i>
+            <span data-translate-admin="settings">الإعدادات</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" data-section="admins">
+            <i class="fas fa-user-shield"></i>
+            <span data-translate-admin="adminsManagement">إدارة المشرفين والصلاحيات</span>
+          </a>
+
+          <a href="#" class="admin-nav-link" onclick="adminLogout()" style="margin-top:2rem;color:var(--accent);">
+            <i class="fas fa-sign-out-alt"></i>
+            <span data-translate-admin="logout">تسجيل الخروج</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Container -->
+    <main class="admin-main">
+      
+      <!-- Topbar -->
+      <header class="admin-topbar">
+        <div class="admin-topbar-left">
+          <button class="admin-sidebar-toggle" aria-label="Toggle Sidebar"><i class="fas fa-bars"></i></button>
+          
+          <!-- Search Bar -->
+          <div class="admin-search">
+            <input type="text" class="admin-search-input" data-translate-admin-placeholder="search" placeholder="بحث..." oninput="if(typeof filterAdminServices === 'function') filterAdminServices(this.value)">
+            <i class="fas fa-search admin-search-icon"></i>
+          </div>
+        </div>
+
+        <div class="admin-topbar-right">
+          <!-- Language Toggle -->
+          <button class="admin-topbar-btn admin-lang-toggle" onclick="toggleAdminLang()" aria-label="Toggle Language">
+            EN
+          </button>
+
+          <!-- User Card -->
+          <div class="admin-user-info">
+            <div class="admin-user-avatar">AD</div>
+            <div style="display:flex;flex-direction:column;line-height:1.2;">
+              <span class="admin-user-name">owner@servicevip</span>
+              <span class="admin-user-role" data-translate-admin="active">نشط</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic Page Content -->
+      <div class="admin-content">
+        <!-- Loaded dynamically by js/admin.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- CRUD Form Modals -->
+  <div class="admin-modal-overlay" id="admin-modal-overlay"></div>
+  <div class="admin-modal" id="admin-modal">
+    <div class="admin-modal-header">
+      <h3 class="admin-modal-title" id="admin-modal-title">تعديل البيانات</h3>
+      <button class="admin-modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="admin-modal-body" id="admin-modal-body">
+      <!-- Generated dynamically by CRUD methods -->
+    </div>
+  </div>
+
+  <script src="../js/backend.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
