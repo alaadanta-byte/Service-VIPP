@@ -216,44 +216,67 @@ const translations = {
   }
 };
 
+function hideLoadingScreen() {
+  const loader = document.querySelector('.loading-screen');
+  if (loader) {
+    loader.classList.add('hidden');
+    loader.style.opacity = '0';
+    loader.style.pointerEvents = 'none';
+    setTimeout(() => {
+      loader.style.display = 'none';
+    }, 400);
+  }
+}
+
 // ========== Initialize App ==========
+async function initApp() {
+  try {
+    await Promise.race([
+      loadSiteConfig(),
+      new Promise(resolve => setTimeout(resolve, 800))
+    ]);
+    await Promise.race([
+      fetchInitialData(),
+      new Promise(resolve => setTimeout(resolve, 800))
+    ]);
+    
+    // Apply language after site config is loaded
+    applyLanguage(AppState.lang);
+    renderFooterServices();
+    
+    // Init UI elements
+    initNavbar();
+    initMobileMenu();
+    initScrollAnimations();
+    initBackToTop();
+    initChatWidget();
+    initCountdown();
+    initTestimonialsSlider();
+    initSearch();
+    
+    // Init page-specific controllers
+    const page = detectPage();
+    if (page === 'home') initHomePage();
+    if (page === 'services') initServicesPage();
+    if (page === 'offers') initOffersPage();
+    if (page === 'contact') initContactPage();
+    if (page === 'complaints') initComplaintPage();
+    if (page === 'login') initLoginPage();
+  } catch (err) {
+    console.error("Init App error:", err);
+  } finally {
+    hideLoadingScreen();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
+  setTimeout(hideLoadingScreen, 600);
 });
 
-async function initApp() {
-  await loadSiteConfig();
-  await fetchInitialData();
-  
-  // Apply language after site config is loaded
-  applyLanguage(AppState.lang);
-  renderFooterServices();
-  
-  // Init UI elements
-  initNavbar();
-  initMobileMenu();
-  initScrollAnimations();
-  initBackToTop();
-  initChatWidget();
-  initCountdown();
-  initTestimonialsSlider();
-  initSearch();
-  
-  // Init page-specific controllers
-  const page = detectPage();
-  if (page === 'home') initHomePage();
-  if (page === 'services') initServicesPage();
-  if (page === 'offers') initOffersPage();
-  if (page === 'contact') initContactPage();
-  if (page === 'complaints') initComplaintPage();
-  if (page === 'login') initLoginPage();
-  
-  // Loading screen hide
-  setTimeout(() => {
-    const loader = document.querySelector('.loading-screen');
-    if (loader) loader.classList.add('hidden');
-  }, 400);
-}
+window.addEventListener('load', () => {
+  setTimeout(hideLoadingScreen, 200);
+});
 
 // ========== Dynamic Config Loading ==========
 async function loadSiteConfig() {
